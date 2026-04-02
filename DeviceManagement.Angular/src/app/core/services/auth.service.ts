@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { User, LoginRequest, AuthResponse } from '../models/user.model';
+import { User, LoginRequest, AuthResponse, RegisterRequest } from '../models/user.model';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from 'jwt-decode';
 
@@ -49,5 +49,17 @@ export class AuthService {
 
   private decodeToken(token: string): any {
     return jwtDecode(token);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  isLoggedIn(): boolean {
+    return this.currentUserSubject.value !== null;
+  }
+  
+  register(dto: RegisterRequest): Observable<User> {
+    return this.http.post<User>(`${environment.apiUrl}/auth/register`, dto);
   }
 }

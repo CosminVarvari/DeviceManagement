@@ -16,3 +16,10 @@ export interface AuthResponse {
   expiresIn: number;
   tokenType: string;
 }
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  location: string;
+}

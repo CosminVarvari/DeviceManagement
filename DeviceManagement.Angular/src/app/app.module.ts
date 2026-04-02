@@ -9,12 +9,14 @@ import { DevicesPageComponent } from './pages/devices/devices-page/devices-page.
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RegisterComponent } from './pages/auth/register/register.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     DevicesPageComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
