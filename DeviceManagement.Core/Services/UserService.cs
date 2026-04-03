@@ -68,12 +68,13 @@ public class UserService : IUserService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim("sub", user.Id.ToString()),
+            new Claim("email", user.Email),
+            new Claim("name", user.Name),
+            new Claim("role", user.Role),
+            new Claim("location", user.Location)
         };
 
         var token = new JwtSecurityToken(

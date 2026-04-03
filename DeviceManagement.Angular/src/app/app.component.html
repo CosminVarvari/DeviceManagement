@@ -1,0 +1,12 @@
+<mat-toolbar *ngIf="authService.getToken()" color="primary">
+  <span>Device Manager</span>
+
+  <span class="spacer"></span>
+
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Logout
+  </button>
+</mat-toolbar>
+
+<router-outlet></router-outlet>

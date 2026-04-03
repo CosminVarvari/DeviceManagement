@@ -1,0 +1,80 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { User, LoginRequest, AuthResponse, RegisterRequest } from '../models/user.model';
+import { environment } from 'src/environments/environment';
+import { jwtDecode } from 'jwt-decode';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly TOKEN_KEY = 'dm_token';
+  private readonly USER_KEY  = 'dm_user';
+
+   currentUserSubject = new BehaviorSubject<User | null>(
+    this.loadUserFromStorage()
+  );
+
+  currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+
+  constructor(private http: HttpClient, private router: Router) {}
+
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  login(dto: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, dto).pipe(
+      tap(response => {
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        const payload: any = this.decodeToken(response.token);
+        const user: User = {
+          id: payload.sub,
+          name: payload.name,
+          email: payload.email,
+          role: payload.role,
+          location: payload.location
+        };
+        this.currentUserSubject.next(user);
+      })
+    );
+  }
+
+  private loadUserFromStorage(): User | null {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return null;
+
+    const payload: any = this.decodeToken(token);
+
+    return {
+      id: payload.sub,
+      name: payload.name,
+      email: payload.email,
+      role: payload.role,
+      location: payload.location
+    };
+  }
+
+  private decodeToken(token: string): any {
+    return jwtDecode(token);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  isLoggedIn(): boolean {
+    return this.currentUserSubject.value !== null;
+  }
+  
+  register(dto: RegisterRequest): Observable<User> {
+    return this.http.post<User>(`${environment.apiUrl}/auth/register`, dto);
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
+  }
+}
