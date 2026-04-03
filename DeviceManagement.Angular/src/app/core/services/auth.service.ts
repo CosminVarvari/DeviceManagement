@@ -71,4 +71,10 @@ export class AuthService {
   register(dto: RegisterRequest): Observable<User> {
     return this.http.post<User>(`${environment.apiUrl}/auth/register`, dto);
   }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
+  }
 }

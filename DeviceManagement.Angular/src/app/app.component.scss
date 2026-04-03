@@ -1,0 +1,18 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.logo {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.user-name {
+  margin-right: 12px;
+}
