@@ -12,6 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { DeviceDetailComponent } from './pages/devices/device-detail/device-detail.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     LoginComponent,
     DevicesPageComponent,
     RegisterComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    DeviceDetailComponent
   ],
   imports: [
     BrowserModule,

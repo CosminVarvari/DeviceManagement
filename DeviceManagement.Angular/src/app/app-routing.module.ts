@@ -4,6 +4,7 @@ import { LoginComponent } from './pages/auth/login/login.component';
 import { DevicesPageComponent } from './pages/devices/devices-page/devices-page.component';
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { DeviceDetailComponent } from './pages/devices/device-detail/device-detail.component';
 
 const routes: Routes = [
   {
@@ -17,7 +18,10 @@ const routes: Routes = [
   },
   {
     path: 'devices', canActivate: [AuthGuard], component: DevicesPageComponent
-  }
+  },
+  {
+    path: 'devices/:id', canActivate: [AuthGuard], component: DeviceDetailComponent
+  },
 ];
 
 @NgModule({
