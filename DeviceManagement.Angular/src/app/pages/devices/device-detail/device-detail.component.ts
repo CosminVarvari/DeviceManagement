@@ -50,10 +50,6 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/devices']); 
   }
 
-  editDevice(): void { 
-    this.router.navigate(['/devices', this.device!.id, 'edit']); 
-  }
-
   confirmDelete(): void {
     this.dialog.open(ConfirmDialogComponent, {
       width: '380px',

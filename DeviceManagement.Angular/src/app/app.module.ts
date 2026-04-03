@@ -13,6 +13,7 @@ import { RegisterComponent } from './pages/auth/register/register.component';
 import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { DeviceDetailComponent } from './pages/devices/device-detail/device-detail.component';
+import { DeviceFormComponent } from './pages/devices/device-form/device-form.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { DeviceDetailComponent } from './pages/devices/device-detail/device-deta
     DevicesPageComponent,
     RegisterComponent,
     ConfirmDialogComponent,
-    DeviceDetailComponent
+    DeviceDetailComponent,
+    DeviceFormComponent
   ],
   imports: [
     BrowserModule,

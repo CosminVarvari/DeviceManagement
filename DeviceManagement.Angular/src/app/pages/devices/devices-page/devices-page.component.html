@@ -44,7 +44,7 @@
       <th mat-header-cell *matHeaderCellDef>Type</th>
       <td mat-cell *matCellDef="let device">
         <mat-chip-listbox>
-          <mat-chip [ngClass]="device.type === 'Phone' ? 'chip-phone' : 'chip-tablet'">
+          <mat-chip class="chip" [ngClass]="device.type === 'Phone' ? 'chip-phone' : 'chip-tablet'">
             <mat-icon>{{ device.type === 'Phone' ? 'smartphone' : 'tablet' }}</mat-icon>
             {{ device.type }}
           </mat-chip>
@@ -68,7 +68,7 @@
       <th mat-header-cell *matHeaderCellDef>Assigned To</th>
       <td mat-cell *matCellDef="let device">
         <mat-chip-listbox *ngIf="device.assignedUserName; else unassignedTpl">
-          <mat-chip class="chip-assigned">
+          <mat-chip class="chip chip-assigned">
             <mat-icon>person</mat-icon>
             {{ device.assignedUserName }}
           </mat-chip>
@@ -83,7 +83,7 @@
       <th class="actions-header" mat-header-cell *matHeaderCellDef>Assign/Unassign</th>
       <td mat-cell *matCellDef="let device">
         <div class="actions-cell">
-          <button mat-icon-button color="accent"
+          <button mat-icon-button color="accent" color="primary"
             matTooltip="Assign to me"
             *ngIf="!device.assignedUserId"
             (click)="assign(device, $event)">

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Device } from '../models/device.model';
+import { CreateDeviceRequest, Device, UpdateDeviceRequest } from '../models/device.model';
 
 @Injectable({
   providedIn: 'root'
@@ -30,5 +30,13 @@ export class DeviceService {
 
   unassign(deviceId: string): Observable<Device> {
     return this.http.post<Device>(`${this.baseUrl}/${deviceId}/unassign`, null);
+  }
+
+  create(dto: CreateDeviceRequest): Observable<Device> {
+    return this.http.post<Device>(this.baseUrl, dto);
+  }
+
+  update(id: string, dto: UpdateDeviceRequest): Observable<Device> {
+    return this.http.put<Device>(`${this.baseUrl}/${id}`, dto);
   }
 }
