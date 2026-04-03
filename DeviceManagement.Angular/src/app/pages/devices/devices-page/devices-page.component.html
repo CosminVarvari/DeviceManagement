@@ -1,1 +1,131 @@
-<p>Hello, {{ currentUserName }}!</p>
+<div class="page-header">
+  <h1>Devices</h1>
+  <button mat-raised-button color="primary" (click)="openCreateForm()">
+    <mat-icon>add</mat-icon> Add Device
+  </button>
+</div>
+
+<div class="filters">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput placeholder="Search by name, manufacturer or user..."
+      (input)="onSearchChange($any($event.target).value)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="type-filter">
+    <mat-label>Type</mat-label>
+    <mat-select (selectionChange)="onTypeFilterChange($event.value)">
+      <mat-option value="All">All</mat-option>
+      <mat-option value="Phone">Phone</mat-option>
+      <mat-option value="Tablet">Tablet</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div *ngIf="loading" class="loading-container">
+  <mat-spinner></mat-spinner>
+</div>
+
+<div *ngIf="!loading" class="table-container mat-elevation-z2">
+  <table mat-table [dataSource]="filteredDevices">
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let device"><strong>{{ device.name }}</strong></td>
+    </ng-container>
+
+    <ng-container matColumnDef="manufacturer">
+      <th mat-header-cell *matHeaderCellDef>Manufacturer</th>
+      <td mat-cell *matCellDef="let device">{{ device.manufacturer }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let device">
+        <mat-chip-listbox>
+          <mat-chip [ngClass]="device.type === 'Phone' ? 'chip-phone' : 'chip-tablet'">
+            <mat-icon>{{ device.type === 'Phone' ? 'smartphone' : 'tablet' }}</mat-icon>
+            {{ device.type }}
+          </mat-chip>
+        </mat-chip-listbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="os">
+      <th mat-header-cell *matHeaderCellDef>OS</th>
+      <td mat-cell *matCellDef="let device">
+        {{ device.operatingSystem }} {{ device.osVersion }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ram">
+      <th mat-header-cell *matHeaderCellDef>RAM</th>
+      <td mat-cell *matCellDef="let device">{{ device.ramAmount }} GB</td>
+    </ng-container>
+
+    <ng-container matColumnDef="assignedTo">
+      <th mat-header-cell *matHeaderCellDef>Assigned To</th>
+      <td mat-cell *matCellDef="let device">
+        <mat-chip-listbox *ngIf="device.assignedUserName; else unassignedTpl">
+          <mat-chip class="chip-assigned">
+            <mat-icon>person</mat-icon>
+            {{ device.assignedUserName }}
+          </mat-chip>
+        </mat-chip-listbox>
+        <ng-template #unassignedTpl>
+          <span class="unassigned">— Available —</span>
+        </ng-template>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="assign">
+      <th class="actions-header" mat-header-cell *matHeaderCellDef>Assign/Unassign</th>
+      <td mat-cell *matCellDef="let device">
+        <div class="actions-cell">
+          <button mat-icon-button color="accent"
+            matTooltip="Assign to me"
+            *ngIf="!device.assignedUserId"
+            (click)="assign(device, $event)">
+            <mat-icon>person_add</mat-icon>
+          </button>
+          <button mat-icon-button matTooltip="Unassign"
+            *ngIf="isAssignedToCurrentUser(device)"
+            (click)="unassign(device, $event)">
+            <mat-icon>person_remove</mat-icon>
+          </button>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th class="actions-header" mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let device">
+        <div class="actions-cell">
+          <button mat-icon-button color="primary"
+            matTooltip="View Details" (click)="viewDetail(device.id)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button matTooltip="Edit"
+            (click)="openEditForm(device, $event)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" matTooltip="Delete"
+            (click)="confirmDelete(device, $event)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+        class="device-row" (click)="viewDetail(row.id)">
+    </tr>
+  </table>
+
+  <div *ngIf="filteredDevices.length === 0" class="empty-state">
+    <mat-icon>devices_other</mat-icon>
+    <p>No devices found.</p>
+  </div>
+</div>

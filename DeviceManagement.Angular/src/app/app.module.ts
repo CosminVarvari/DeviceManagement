@@ -7,16 +7,19 @@ import { MaterialModule } from './material.module';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { DevicesPageComponent } from './pages/devices/devices-page/devices-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RegisterComponent } from './pages/auth/register/register.component';
+import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     DevicesPageComponent,
-    RegisterComponent
+    RegisterComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -26,7 +29,13 @@ import { RegisterComponent } from './pages/auth/register/register.component';
     HttpClientModule,
     BrowserAnimationsModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

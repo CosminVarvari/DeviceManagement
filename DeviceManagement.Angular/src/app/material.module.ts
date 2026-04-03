@@ -13,6 +13,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   imports: [
@@ -28,7 +30,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTooltipModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatChipsModule,
+    MatTableModule
   ],
   exports: [
     MatGridListModule,
@@ -43,7 +47,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTooltipModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatChipsModule,
+    MatTableModule
   ]
 })
 export class MaterialModule {}
