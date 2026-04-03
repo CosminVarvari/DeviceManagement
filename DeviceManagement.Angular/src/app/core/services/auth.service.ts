@@ -12,7 +12,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'dm_token';
   private readonly USER_KEY  = 'dm_user';
 
-  private currentUserSubject = new BehaviorSubject<User | null>(
+   currentUserSubject = new BehaviorSubject<User | null>(
     this.loadUserFromStorage()
   );
 
@@ -29,7 +29,6 @@ export class AuthService {
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         const payload: any = this.decodeToken(response.token);
-        console.log(payload);
         const user: User = {
           id: payload.sub,
           name: payload.name,
@@ -43,8 +42,18 @@ export class AuthService {
   }
 
   private loadUserFromStorage(): User | null {
-    const raw = localStorage.getItem(this.USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return null;
+
+    const payload: any = this.decodeToken(token);
+
+    return {
+      id: payload.sub,
+      name: payload.name,
+      email: payload.email,
+      role: payload.role,
+      location: payload.location
+    };
   }
 
   private decodeToken(token: string): any {

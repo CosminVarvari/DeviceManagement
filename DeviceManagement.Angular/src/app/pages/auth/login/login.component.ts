@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent{
   form: FormGroup;
   loading = false;
   hide = true;
