@@ -1,17 +1,19 @@
-using System.Text;
+using DeviceManagement.API.Middleware;
+using DeviceManagement.Core.Interfaces;
 using DeviceManagement.Core.Services;
+using DeviceManagement.Core.Services.Interfaces;
 using DeviceManagement.Infrastructure.Data;
 using DeviceManagement.Infrastructure.Repositories;
+using DeviceManagement.Infrastructure.Repositories.Interfaces;
+using DeviceManagement.Infrastructure.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using DeviceManagement.API.Middleware;
-using DeviceManagement.Core.Services.Interfaces;
-using DeviceManagement.Infrastructure.Repositories.Interfaces;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,8 @@ builder.Services.AddScoped<IUserRepository,   UserRepository>();
 
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IUserService,   UserService>();
+
+builder.Services.AddScoped<IDescriptionGeneratorService, DescriptionGeneratorService>();
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
