@@ -61,11 +61,14 @@
 }
 
 .spec-label {
+  display: flex;
+  align-items: center;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #757575;
+  margin-bottom: 10px;
 }
 
 .spec-value       { 
@@ -115,4 +118,8 @@ mat-card-title {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.star-icon {
+  margin-right: 5px;
 }
