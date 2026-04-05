@@ -43,4 +43,10 @@ export class DeviceService {
   generateAIOverview(dto: GenerateDescriptionRequest): Observable<{ description: string }> {
     return this.http.post<{ description: string }>(`${this.baseUrl}/generate-description`, dto);
   }
+
+  search(query: string): Observable<{ device: Device; score: number }[]> {
+    return this.http.get<{ device: Device; score: number }[]>(
+      `${this.baseUrl}/search`, { params: { query } }
+    );
+  }
 }

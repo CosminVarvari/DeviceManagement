@@ -111,6 +111,18 @@ public class DeviceService : IDeviceService
         return MapToDto(updated);
     }
 
+    public async Task<IEnumerable<DeviceSearchResultDto>> SearchAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            throw new ArgumentException("Search query cannot be empty.");
+
+        var devices = await _deviceRepo.GetAllAsync();
+        var deviceList = devices.ToList();
+        var dtos = deviceList.Select(MapToDto).ToList();
+
+        return DeviceSearchEngine.Search(deviceList, dtos, query);
+    }
+
     private static DeviceDto MapToDto(Device d) => new()
     {
         Id = d.Id,

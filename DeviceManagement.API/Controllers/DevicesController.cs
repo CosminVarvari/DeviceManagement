@@ -113,6 +113,16 @@ public class DevicesController : ControllerBase
         return Ok(new { description });
     }
 
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(IEnumerable<DeviceSearchResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Search([FromQuery] string query)
+    {
+        _logger.LogInformation("Searching devices with query: {Query}", query);
+        var results = await _deviceService.SearchAsync(query);
+        return Ok(results);
+    }
+
     private Guid GetCurrentUserId()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
