@@ -11,4 +11,5 @@ public interface IDeviceService
     Task DeleteAsync(Guid id);
     Task<DeviceDto> AssignToUserAsync(Guid deviceId, Guid userId);
     Task<DeviceDto> UnassignFromUserAsync(Guid deviceId, Guid userId);
+    Task<IEnumerable<DeviceSearchResultDto>> SearchAsync(string query);
 }

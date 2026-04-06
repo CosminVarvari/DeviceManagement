@@ -87,6 +87,14 @@
           <p class="description-text">{{ device.description }}</p>
         </div>
       </ng-container>
+
+      <ng-container *ngIf="aiOverview">
+        <mat-divider style="margin: 24px 0"></mat-divider>
+        <div class="description-section">
+          <span class="spec-label"><mat-icon class="star-icon">auto_awesome</mat-icon> AI Overview</span>
+          <p class="description-text">{{ aiOverview }}</p>
+        </div>
+      </ng-container>
     </mat-card-content>
   </mat-card>
 </div>

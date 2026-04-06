@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { Device } from 'src/app/core/models/device.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -18,6 +18,7 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
 
   device: Device | null = null;
   loading = true;
+  aiOverview = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -29,21 +30,36 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.deviceService.getById(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:  d  => { this.device = d; this.loading = false; },
-        error: () => {
-          this.showError('Device not found.');
-          this.router.navigate(['/devices']);
-        }
-      });
+    this.getDeviceDetails();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  getDeviceDetails() {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.deviceService.getById(id).pipe(
+      tap(device => this.device = device),
+      switchMap(device => {
+        const descriptionRequest = {
+          name:            device.name,
+          manufacturer:    device.manufacturer,
+          type:            device.type,
+          operatingSystem: device.operatingSystem,
+          osVersion:       device.osVersion,
+          processor:       device.processor,
+          ramAmount:       device.ramAmount
+        };
+        return this.deviceService.generateAIOverview(descriptionRequest);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next:  response => {
+        this.aiOverview = response.description;
+        this.loading    = false;
+      },
+      error: () => {
+        this.showError('Device not found.');
+        this.router.navigate(['/devices']);
+      }
+    });
   }
 
   goBack(): void { 
@@ -54,8 +70,8 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
     this.dialog.open(ConfirmDialogComponent, {
       width: '380px',
       data: {
-        title:       'Delete Device',
-        message:     `Are you sure you want to delete "${this.device!.name}"?`,
+        title: 'Delete Device',
+        message: `Are you sure you want to delete "${this.device!.name}"?`,
         confirmText: 'Delete'
       }
     })
@@ -100,5 +116,10 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
 
   private showError(msg: string): void {
     this.snackBar.open(msg, 'Close', { duration: 4000, panelClass: 'snack-error' });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

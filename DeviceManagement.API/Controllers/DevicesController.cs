@@ -1,8 +1,9 @@
-using System.Security.Claims;
 using DeviceManagement.Core.DTOs.Device;
+using DeviceManagement.Core.Interfaces;
 using DeviceManagement.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DeviceManagement.API.Controllers;
 
@@ -11,13 +12,15 @@ namespace DeviceManagement.API.Controllers;
 [Authorize]
 public class DevicesController : ControllerBase
 {
+    private readonly IDescriptionGeneratorService _generatorService;
     private readonly IDeviceService _deviceService;
     private readonly ILogger<DevicesController> _logger;
 
-    public DevicesController(IDeviceService deviceService, ILogger<DevicesController> logger)
+    public DevicesController(IDeviceService deviceService, ILogger<DevicesController> logger, IDescriptionGeneratorService generatorService)
     {
         _deviceService = deviceService;
         _logger = logger;
+        _generatorService = generatorService;
     }
 
     [HttpGet]
@@ -95,6 +98,29 @@ public class DevicesController : ControllerBase
         _logger.LogInformation("User {UserId} unassigning device {DeviceId}", userId, id);
         var result = await _deviceService.UnassignFromUserAsync(id, userId);
         return Ok(result);
+    }
+
+    [HttpPost("generate-description")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Generate([FromBody] GenerateDescriptionDto dto)
+    {
+        _logger.LogInformation(
+            "Generating description for {Name} by {Manufacturer}", dto.Name, dto.Manufacturer);
+
+        var description = await _generatorService.GenerateDescriptionAsync(dto);
+
+        return Ok(new { description });
+    }
+
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(IEnumerable<DeviceSearchResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Search([FromQuery] string query)
+    {
+        _logger.LogInformation("Searching devices with query: {Query}", query);
+        var results = await _deviceService.SearchAsync(query);
+        return Ok(results);
     }
 
     private Guid GetCurrentUserId()

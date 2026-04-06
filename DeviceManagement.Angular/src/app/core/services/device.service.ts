@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CreateDeviceRequest, Device, UpdateDeviceRequest } from '../models/device.model';
+import { CreateDeviceRequest, Device, GenerateDescriptionRequest, UpdateDeviceRequest } from '../models/device.model';
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +38,15 @@ export class DeviceService {
 
   update(id: string, dto: UpdateDeviceRequest): Observable<Device> {
     return this.http.put<Device>(`${this.baseUrl}/${id}`, dto);
+  }
+
+  generateAIOverview(dto: GenerateDescriptionRequest): Observable<{ description: string }> {
+    return this.http.post<{ description: string }>(`${this.baseUrl}/generate-description`, dto);
+  }
+
+  search(query: string): Observable<{ device: Device; score: number }[]> {
+    return this.http.get<{ device: Device; score: number }[]>(
+      `${this.baseUrl}/search`, { params: { query } }
+    );
   }
 }

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy  } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subject, combineLatest } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { DeviceService } from '../../../core/services/device.service';
@@ -20,12 +20,14 @@ export class DevicesPageComponent implements OnInit {
 
   private destroy$     = new Subject<void>();
   private devices$     = new BehaviorSubject<Device[]>([]);
-  private searchQuery$ = new BehaviorSubject<string>('');
   private typeFilter$  = new BehaviorSubject<'All' | 'Phone' | 'Tablet'>('All');
 
   filteredDevices: Device[] = [];
   loading = true;
-  displayedColumns = ['name', 'manufacturer', 'type', 'os', 'ram', 'assignedTo', 'assign', 'actions'];
+  displayedColumns = ['name', 'manufacturer', 'type', 'os', 'processor', 'ram', 'assignedTo', 'assign', 'actions'];
+
+  private searchSubject = new Subject<string>();
+  isSearchMode = false;
 
   constructor(
     private deviceService: DeviceService,
@@ -36,36 +38,25 @@ export class DevicesPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    combineLatest([this.devices$, this.searchQuery$, this.typeFilter$])
-      .pipe(
-        map(([devices, query, type]) => {
-          let result = devices;
-
-          if (type !== 'All') {
-            result = result.filter(d => d.type === type);
-          }
-
-          if (query.trim()) {
-            const q = query.toLowerCase().trim();
-            result = result.filter(d =>
-              d.name.toLowerCase().includes(q)              ||
-              d.manufacturer.toLowerCase().includes(q)     ||
-              (d.assignedUserName?.toLowerCase().includes(q) ?? false)
-            );
-          }
-
-          return result;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(filtered => this.filteredDevices = filtered);
-
+    this.combineLatest();
+    this.searchEngine();
     this.loadDevices();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  combineLatest(): void {
+    combineLatest([this.devices$, this.typeFilter$])
+    .pipe(
+      map(([devices, type]) =>
+        type === 'All' ? devices : devices.filter(d => d.type === type)
+      ),
+      takeUntil(this.destroy$)
+    )
+    .subscribe(filtered => this.filteredDevices = filtered);
   }
 
   loadDevices(): void {
@@ -84,8 +75,29 @@ export class DevicesPageComponent implements OnInit {
       });
   }
 
-  onSearchChange(query: string): void     { 
-    this.searchQuery$.next(query); 
+  onSearchChange(query: string): void {
+    this.searchSubject.next(query);
+  }
+
+  searchEngine(): void {
+    this.searchSubject.pipe(
+    debounceTime(400),
+    distinctUntilChanged(),
+    switchMap(query => {
+      if (!query.trim()) {
+        this.isSearchMode = false;
+        return this.deviceService.getAll();
+      }
+      this.isSearchMode = true;
+      return this.deviceService.search(query).pipe(
+        map(results => results.map(r => r.device))
+      );
+    }),
+    takeUntil(this.destroy$)
+      ).subscribe({
+        next:  devices => this.devices$.next(devices),
+        error: ()      => this.showError('Search failed.')
+      });
   }
 
   onTypeFilterChange(type: any): void     { 
@@ -110,15 +122,18 @@ export class DevicesPageComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '380px',
       data: {
-        title:       'Delete Device',
-        message:     `Are you sure you want to delete "${device.name}"?`,
-        confirmText: 'Delete'
+        title:'Delete Device',
+        message:`Are you sure you want to delete "${device.name}"?`,
+        confirmText:'Delete'
       }
     });
 
     dialogRef.afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(confirmed => { if (confirmed) this.deleteDevice(device.id); });
+      .subscribe(confirmed => { 
+        if (confirmed) 
+          this.deleteDevice(device.id); 
+        });
   }
 
   private deleteDevice(id: string): void {
