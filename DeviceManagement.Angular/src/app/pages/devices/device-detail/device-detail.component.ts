@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { catchError, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { Device } from 'src/app/core/models/device.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -47,7 +47,12 @@ export class DeviceDetailComponent implements OnInit, OnDestroy {
           processor:       device.processor,
           ramAmount:       device.ramAmount
         };
-        return this.deviceService.generateAIOverview(descriptionRequest);
+        return this.deviceService.generateAIOverview(descriptionRequest).pipe(
+          catchError(() => {
+            this.aiOverview = '';
+            return of({ description: '' });
+          })
+        );
       }),
       takeUntil(this.destroy$)
     ).subscribe({
